@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Ayan's Extension</title>
+	<script src="/js/jquery.js"></script>
+  <script src="/js/jquery-ui.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:100,200,300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+	<!-- Modal -->
+	<div id="create_modal" class="modal">
+	  <div class="modal-content">
+	    <p class="modal-header">Create Task</p>
+			<input type="text" placeholder="Enter a title here" class="modal-input" id="modal_title">
+			<br>
+			<select id="modal_color">
+			  <option value="red">Red</option>
+			  <option value="pink">Pink</option>
+			  <option value="purple">Purple</option>
+			  <option value="blue">Blue</option>
+				<option value="indigo">Indigo</option>
+				<option value="orange">Orange</option>
+				<option value="yellow">Yellow</option>
+				<option value="green">Green</option>
+			</select>
+			<button type="button" name="button" class="modal-btn" id="modal_submit">Ok</button>
+			<br>
+			<span style="color: #eee" id="modal_error"></span>
+	  </div>
+	</div>
+
+	<div class="container">
+		<div class="flex-container">
+
+			<!-- ICE BOX -->
+			<div class="flex-item">
+				<div class="task-header">Ice Box</div>
+				<ul class="task-container dragable" id="icebox-container"></ul>
+			</div>
+
+			<!-- W.I.P -->
+			<div class="flex-item">
+				<div class="task-header">W.I.P</div>
+				<ul class="task-container dragable" id="wip-container"></ul>
+			</div>
+
+			<!-- TEST -->
+			<div class="flex-item">
+				<div class="task-header">Testing</div>
+				<ul class="task-container dragable" id="testing-container"></ul>
+			</div>
+
+			<!-- DONE -->
+			<div class="flex-item">
+				<div class="task-header">Done</div>
+				<ul class="task-container dragable" id="done-container"></ul>
+				<b>Drag here to delete:</b>
+				<ul class="task-delete dragable"></ul>
+			</div>
+
+		</div>
+		<div class="" style="margin: 0px 10px;">
+			<span class="action-btn" id="create-btn">+ Create</span>
+			<span class="action-btn" id="reset-btn">Reset</span>
+			
+		</div>
+
+	</div>
+</body>
+<script src="./js/core.js"></script>
+<script src="./js/task.js"></script>
+<script src="./js/main.js"></script>
+</html>
