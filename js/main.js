@@ -1,82 +1,95 @@
 
-var create_task_btn, reset_app_btn, modal, core;
+var taskHelper, core;
 
 function main() {
-
-  modal = document.getElementById('create_modal');
-  create_task_btn = $('#create-btn');
-  reset_app_btn = $('#reset-btn');
   core = new Core(localStorage);
+  taskHelper = new Task.Helper(core);
 
-  // sortable list
+  $("#create-btn-main").on("click",(e) => { mktask(0) })
+  $("#create-btn-started").on("click",(e) => { mktask(1) })
+  $("#create-btn-done").on("click",(e) => { mktask(2) })
+
+  // enable list sorting
   $( "ul" ).sortable({
     connectWith: ".dragable",
     update: (event, ul) => {
-      $(".task-delete").empty();
       var new_arr = [];
-      new_arr = new_arr.concat(getTasksFromHTML($("#icebox-container").children(), "icebox"));
-      new_arr = new_arr.concat(getTasksFromHTML($("#wip-container").children(), "wip"));
-      new_arr = new_arr.concat(getTasksFromHTML($("#testing-container").children(), "testing"));
-      new_arr = new_arr.concat(getTasksFromHTML($("#done-container").children(), "done"));
 
-      core.data.tasks = new_arr;
-      core.commit(localStorage);
+      for (var i = 0; i < document.getElementsByClassName("task-container").length; i++) {
+        p_el = document.getElementsByClassName("task-container")[i];
 
+        for (var j = 0; j < p_el.getElementsByClassName("card").length; j++) {
+          c_el = p_el.getElementsByClassName("card")[j];
+          new_arr.push({id: c_el.getAttribute("task_id"), stage: i})
+        }
+      }
+      taskHelper.taskRearrange(new_arr)
     }
   }).disableSelection();
 
   setupUI();
-  fetchData(core.data);
-}
-
-$(document).ready(e => { main(); });
-
-
-function fetchData(data) {
-  var tasks = data.tasks;
-  $(".task-container").empty();
-  tasks.forEach((task, i) => {
-    $("#"+task.stage+"-container").append(Task.getHTMLElement(task));
-  });
-}
-
-function getTasksFromHTML(tasks, stage) {
-  var new_arr = [];
-  for (var i = 0; i < tasks.length; i++) {
-    task = findFromArray($(tasks[i]).attr("task_id"));
-    task.stage = stage;
-    new_arr.push(task);
-  }
-  return new_arr;
-}
-// finds element core.data.tasks
-function findFromArray(nameKey){
-  for (var i=0; i < core.data.tasks.length; i++) {
-    if (core.data.tasks[i].id == nameKey) {
-      return core.data.tasks[i];
-    }
-  }
 }
 
 function setupUI() {
-  // All about modal
-  create_task_btn.click(function() { $(modal).fadeIn(); });
-  function modalOff() {
-    $("#modal_title").val("");
-    $("#modal_error").val("");
-    $("#modal_error").text("");
-    fetchData(core.data);
-    $(modal).fadeOut();
-  }
-  window.onclick = function(event) {if (event.target == modal) { modalOff(); }}
-  $("#modal_submit").click(e => {
-    try {
-      var task = new Task($("#modal_title").val(), $("#modal_color").val());
-      core.data.tasks.push(task);
-      core.commit(localStorage);
-      modalOff();
-    } catch(ex) { $("#modal_error").text(ex); }
+  $( ".task-container" ).empty();
+  taskHelper.core.data.tasks.forEach(e => {
+    task = new Task(e);
+    document.getElementsByClassName("task-container")[task.stage].append(getHTMLElement(task))
   });
-
-  reset_app_btn.click(function() {delete localStorage.data; location.reload()});
 }
+
+
+function mktask(stage) {
+  let head = document.getElementById("new-task-head").value;
+  let body = document.getElementById("new-task-body").value;
+  let color = document.getElementById("new-task-color").value;
+
+  if ((head.length>0) && (body.length>0)) {
+    document.getElementById("new-task-head").value="";
+    document.getElementById("new-task-body").value="";
+    document.getElementById("new-task-color").value="";
+    new Task.Builder(head, body, color, stage).create(taskHelper);
+    setupUI();
+  }
+}
+
+
+function getHTMLElement(task) {
+  var li = document.createElement("li");
+
+  var head_container = document.createElement("div")
+  head_container.setAttribute("class", "header-container");
+
+  var head = document.createElement("label");
+  head.innerHTML = task.head;
+  head.setAttribute("class", "header")
+
+  head_container.append(head)
+  li.append(head_container)
+
+  var check = document.createElement("input");
+  check.setAttribute("type", "checkbox");
+
+  if(task.done) check.setAttribute("checked", "");
+
+  check.addEventListener( 'change', (e) => {
+    if(check.checked) { li.classList.add("done") }
+    else { li.classList.remove("done") }
+    taskHelper.taskDoneToggle(task.id)
+  });
+  li.append(check);
+
+  var body = document.createElement("span")
+  body.innerText = task.title;
+  body.setAttribute("class", "body");
+  li.append(body);
+
+  li.setAttribute("task_id", task.id);
+  li.setAttribute("class", "card card-"+task.color+" "+(task.done ? "done": ""));
+
+  return li;
+}
+
+
+// start program
+$(document).ready(e => { main(); });

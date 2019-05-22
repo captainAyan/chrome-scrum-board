@@ -1,25 +1,79 @@
+'use strict';
 
 class Task {
 
-  constructor(title, color) {
-    if (Task.colors.includes(color)) {
-      if ((title.length>0)) {
-        this.id = new Date().valueOf();
-        this.title = title;
-        this.color = color;
-        this.stage = "icebox";
-      } else { throw "invalid title"; }
-    } else { throw "invalid color"; }
+  constructor(task) {
+    if (task.id) { if(task.head) { if (task.title) { if (task.color) { if (task.stage >=0 && task.stage <=2) {
+      this.id = task.id;
+      this.head = task.head;
+      this.title = task.title;
+      this.done = task.done;
+      this.color = task.color;
+      this.stage = task.stage;
+    } else { throw "invalid stage" }} else { throw "invalid color"}} else { throw "invalid title" }} else { throw "invalid head" } } else { throw "invalid id"; }
   }
 
-  static colors = ["red", "pink", "purple", "blue", "indigo", "orange", "yellow", "green"];
+  static Builder = class {
+    constructor(title, head, color, stage) {
+      if (Task.Builder.colors.includes(color)) {
+        if ((title.length>0) && (head.length)>0) {
+          if ( (stage >= 0) && (stage <= 2) ) {
+            this.id = new Date().valueOf();
+            this.head = head;
+            this.title = title;
+            this.done = false;
+            this.color = color;
+            this.stage = stage;
+          } else { throw "invalid stage" }
+        } else { throw "invalid title or head"; }
+      } else { throw "invalid color"; }
+    }
 
-  // returns html li element
-  static getHTMLElement(task) {
-    var li = $(document.createElement("li"));
-    li.text(task.title);
-    li.attr("task_id", task.id);
-    li.addClass("card card-"+task.color);
-    return li;
+    create(helper) {
+      if (helper instanceof Task.Helper) {
+        helper.addTask(this);
+      } else { throw "instance of Task.Helper class is required" }
+    }
+
+    static colors = ["red", "pink", "purple", "blue", "indigo", "orange", "yellow", "green"];
+  }
+
+  static Helper = class {
+    constructor(core) {
+      if (core instanceof Core) {
+        this.core = core;
+      } else { throw "instance of Core class required" }
+    }
+
+    addTask(task) {
+      if (task instanceof Task.Builder) {
+        this.core.data.tasks.push(task);
+        core.commit()
+      } else { throw "instance of Task.Builder class is required" }
+    }
+
+    taskDoneToggle(id) {
+      this.core.data.tasks.forEach(task => {
+        if (task.id == id) { task.done = !task.done }
+      })
+      this.core.commit()
+    }
+
+    taskRearrange(t_arr) {
+      var task_arr = [];
+
+      t_arr.forEach(tuple => {
+        this.core.data.tasks.forEach(task => {
+          if (task.id == tuple.id) {
+            let t = new Task(task);
+            t.stage = tuple.stage;
+            task_arr.push(t)
+          }
+        })
+      })
+      this.core.data.tasks = task_arr;
+      this.core.commit();
+    }
+
   }
 }

@@ -3,16 +3,17 @@ class Core {
 
   constructor(ls) {
     var data;
-    if (ls.getItem("data") == undefined) {
+    this.localStorage = ls
+    if (this.localStorage.getItem("data") == undefined) {
       this.data = {tasks: []};
-      ls.setItem("data", JSON.stringify(this.data));
+      this.localStorage.setItem("data", JSON.stringify(this.data));
     }
     else {
-      try { this.data = JSON.parse(ls.getItem("data")); }
+      try { this.data = JSON.parse(this.localStorage.getItem("data")); }
       catch(ex) {
         if (ex instanceof SyntaxError) {
           this.data = {tasks: []};
-          ls.setItem("data", JSON.stringify(this.data));
+          this.localStorage.setItem("data", JSON.stringify(this.data));
         }
         else {throw ex;}
       }
@@ -20,8 +21,9 @@ class Core {
   }
 
   // saves to localStorage
-  commit(localStorage) {
-    localStorage.setItem("data", JSON.stringify(this.data));
+  commit() {
+    console.log("commiting")
+    this.localStorage.setItem("data", JSON.stringify(this.data));
   }
 
 }
