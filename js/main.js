@@ -28,6 +28,7 @@ function main() {
   }).disableSelection();
 
   setupUI();
+  setupDate();
 }
 
 function setupUI() {
@@ -36,6 +37,23 @@ function setupUI() {
     task = new Task(e);
     document.getElementsByClassName("task-container")[task.stage].append(getHTMLElement(task))
   });
+}
+
+function setupDate() {
+  const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"];
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
+  "Friday", "Saturday"]
+
+  let d = new Date();
+  d.setDate(d.getDate()-3);
+
+  for (var i = 0; i < document.getElementsByClassName("day").length; i++) {
+    d.setDate(d.getDate()+1);
+    el = document.getElementsByClassName("day")[i];
+    el.getElementsByTagName("b")[0].innerText = dayNames[d.getDay()];
+    el.getElementsByTagName("p")[0].innerText = monthNames[d.getMonth()] + " " + d.getDate();
+  }
 }
 
 
@@ -47,7 +65,6 @@ function mktask(stage) {
   if ((head.length>0) && (body.length>0)) {
     document.getElementById("new-task-head").value="";
     document.getElementById("new-task-body").value="";
-    document.getElementById("new-task-color").value="";
     new Task.Builder(head, body, color, stage).create(taskHelper);
     setupUI();
   }
