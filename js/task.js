@@ -45,6 +45,7 @@ class Task {
       } else { throw "instance of Core class required" }
     }
 
+    // takes Task.Builder() object and creates task on DB
     addTask(task) {
       if (task instanceof Task.Builder) {
         this.core.data.tasks.push(task);
@@ -52,6 +53,7 @@ class Task {
       } else { throw "instance of Task.Builder class is required" }
     }
 
+    // takes integer id and marks that task as done from DB
     taskDoneToggle(id) {
       this.core.data.tasks.forEach(task => {
         if (task.id == id) { task.done = !task.done }
@@ -59,9 +61,9 @@ class Task {
       this.core.commit()
     }
 
+    // takes {id: int, stage: int } *arranged array and rearranges the DB
     taskRearrange(t_arr) {
       var task_arr = [];
-
       t_arr.forEach(tuple => {
         this.core.data.tasks.forEach(task => {
           if (task.id == tuple.id) {
@@ -73,6 +75,16 @@ class Task {
       })
       this.core.data.tasks = task_arr;
       this.core.commit();
+    }
+
+    // takes integer id and deletes that task from DB
+    taskDelete(id) {
+      var task_arr = [];
+      this.core.data.tasks.forEach((task,i) => {
+        if (task.id != id) { task_arr.push(task) }
+      })
+      this.core.data.tasks = task_arr;
+      this.core.commit()
     }
 
   }

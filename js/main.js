@@ -5,26 +5,14 @@ function main() {
   core = new Core(localStorage);
   taskHelper = new Task.Helper(core);
 
-  $("#create-btn-main").on("click",(e) => { mktask(0) })
-  $("#create-btn-started").on("click",(e) => { mktask(1) })
-  $("#create-btn-done").on("click",(e) => { mktask(2) })
+  $("#create-btn-main").on("click",(e) => { makeTask(0) })
+  $("#create-btn-started").on("click",(e) => { makeTask(1) })
+  $("#create-btn-done").on("click",(e) => { makeTask(2) })
 
   // enable list sorting
   $( "ul" ).sortable({
     connectWith: ".dragable",
-    update: (event, ul) => {
-      var new_arr = [];
-
-      for (var i = 0; i < document.getElementsByClassName("task-container").length; i++) {
-        p_el = document.getElementsByClassName("task-container")[i];
-
-        for (var j = 0; j < p_el.getElementsByClassName("card").length; j++) {
-          c_el = p_el.getElementsByClassName("card")[j];
-          new_arr.push({id: c_el.getAttribute("task_id"), stage: i})
-        }
-      }
-      taskHelper.taskRearrange(new_arr)
-    }
+    update: (event, ul) => { saveState(); }
   }).disableSelection();
 
   setupUI();
@@ -35,7 +23,8 @@ function setupUI() {
   $( ".task-container" ).empty();
   taskHelper.core.data.tasks.forEach(e => {
     task = new Task(e);
-    document.getElementsByClassName("task-container")[task.stage].append(getHTMLElement(task))
+    $(document.getElementsByClassName("task-container")[task.stage])
+      .append($(getHTMLElement(task)).hide().fadeIn(200))
   });
 }
 
@@ -56,20 +45,21 @@ function setupDate() {
   }
 }
 
-
-function mktask(stage) {
-  let head = document.getElementById("new-task-head").value;
-  let body = document.getElementById("new-task-body").value;
+function makeTask(stage) {
+  let head = document.getElementById("new-task-head").value.trim();
+  let body = document.getElementById("new-task-body").value.trim();
   let color = document.getElementById("new-task-color").value;
 
   if ((head.length>0) && (body.length>0)) {
     document.getElementById("new-task-head").value="";
     document.getElementById("new-task-body").value="";
-    new Task.Builder(head, body, color, stage).create(taskHelper);
-    setupUI();
+    let task = new Task.Builder(head, body, color, stage)
+    task.create(taskHelper);
+
+    $(document.getElementsByClassName("task-container")[stage])
+      .append($(getHTMLElement(task)).hide().fadeIn(200))
   }
 }
-
 
 function getHTMLElement(task) {
   var li = document.createElement("li");
@@ -107,6 +97,37 @@ function getHTMLElement(task) {
   return li;
 }
 
+function saveState() {
+  var new_arr = [];
+
+  for (var i = 0; i < document.getElementsByClassName("task-container").length; i++) {
+    p_el = document.getElementsByClassName("task-container")[i];
+
+    for (var j = 0; j < p_el.getElementsByClassName("card").length; j++) {
+      c_el = p_el.getElementsByClassName("card")[j];
+      new_arr.push({id: parseInt(c_el.getAttribute("task_id")), stage: i})
+    }
+  }
+  taskHelper.taskRearrange(new_arr)
+  console.log("state saved");
+}
+
+function deleteTask() {
+  for (var i = 0; i < document.getElementsByClassName("card done").length; i++) {
+    $(document.getElementsByClassName("card done")[i]).fadeOut(200, function() {
+      taskHelper.taskDelete(parseInt(this.getAttribute("task_id")))
+      $(this).remove();
+    });
+  }
+}
+
+function resetDate() {
+  $(".card").fadeOut(200, function() {
+    taskHelper.taskDelete(parseInt(this.getAttribute("task_id")))
+    $(this).remove();
+  });
+  saveState();
+}
 
 // start program
 $(document).ready(e => { main(); });

@@ -10,6 +10,22 @@ body {
 
 .center { text-align:center; }
 
+.action-btn{
+  padding: 10px;
+  margin: 10px 10px 10px 0px;
+  float: right;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  color: #fff;
+}
+.delete-btn { background: #f44336; }
+.delete-btn:hover { background: #d63a2f; }
+.reset-btn { background: #2196f3; }
+.reset-btn:hover { background: #1b83d6; }
+
 /* Header */
 .header {
   margin: 0px 5px;
